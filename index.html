@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SGU Demo - CRM Unimed</title>
+<title>CRM Exemplo FESP</title>
 <style>
   :root {
     --green: #00995d; --green-dark: #00703c; --green-soft: #e6f4ee;
@@ -84,7 +84,7 @@
 </head>
 <body>
 <header>
-  <div class="brand">SGU Demo <small>CRM de Relacionamento com o Beneficiário · Unimed Demo</small></div>
+  <div class="brand">CRM Exemplo FESP <small>Relacionamento com o Beneficiário</small></div>
   <div class="live"><span class="dot" id="dot"></span><span id="liveText">Conectando...</span></div>
 </header>
 <div class="banner">Ambiente de demonstração com dados fictícios. Os registros são gravados em tempo real pelo assistente virtual (IA) via API.</div>
@@ -161,7 +161,7 @@ async function load() {
       const a = fresh[0];
       const b = benef.find((x) => dig(x.carteirinha) === dig(a.carteirinha));
       if (b) { state.selected = b; state.tab = 'atendimentos'; }
-      toast(`<b>Novo atendimento registrado pela IA</b>${esc(a.nome)} · protocolo ${esc(a.numero_protocolo)}`);
+      toast(`<b>Novo atendimento registrado pela IA</b>${esc(a.nome || 'Contato não identificado')}${a.numero_protocolo ? ' · protocolo ' + esc(a.numero_protocolo) : ' · ' + esc(a.desfecho || '')}`);
       setTimeout(() => { fresh.forEach((x) => state.newIds.delete(x.id)); }, 6000);
     }
     if (!state.selected && benef.length) state.selected = benef[0];
@@ -197,7 +197,7 @@ function renderList() {
 function renderFeed() {
   const items = state.atd.slice(0, 6);
   $('feed').innerHTML = items.length ? items.map((a) => `<div class="feed-item ${state.newIds.has(a.id) ? 'new' : ''}" data-cart="${esc(a.carteirinha)}">
-      <b>${esc(a.nome)}</b><br>${esc(a.assuntos || a.intencao || '')}<br><span class="muted">${fmtDateTime(a.data_atendimento || a.created)} · ${esc(a.desfecho || '')}</span></div>`).join('')
+      <b>${esc(a.nome || 'Contato não identificado')}</b><br>${esc(a.assuntos || a.intencao || '')}<br><span class="muted">${fmtDateTime(a.data_atendimento || a.created)} · ${esc(a.desfecho || '')}</span></div>`).join('')
     : '<div class="empty">Nenhum atendimento ainda.</div>';
 }
 
