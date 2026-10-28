@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SGU Demo - CRM Unimed</title>
+<style>
+  :root {
+    --green: #00995d; --green-dark: #00703c; --green-soft: #e6f4ee;
+    --bg: #f3f5f4; --card: #ffffff; --text: #1f2a24; --muted: #6b7a72; --line: #dfe6e2;
+    --red: #c0392b; --red-soft: #fbeaea; --amber: #b7791f; --amber-soft: #fdf3e1; --blue: #2b6cb0; --blue-soft: #e8f0fa;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Segoe UI", Roboto, Arial, sans-serif; background: var(--bg); color: var(--text); font-size: 14px; }
+  header { background: var(--green); color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 56px; }
+  header .brand { font-size: 20px; font-weight: 700; letter-spacing: .2px; }
+  header .brand small { font-weight: 400; opacity: .85; font-size: 13px; margin-left: 10px; }
+  header .live { display: flex; align-items: center; gap: 8px; font-size: 12px; opacity: .95; }
+  header .dot { width: 9px; height: 9px; border-radius: 50%; background: #9ff0c8; box-shadow: 0 0 0 0 rgba(159,240,200,.7); animation: pulse 2s infinite; }
+  header .dot.off { background: #f5b7b1; animation: none; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(159,240,200,.7); } 70% { box-shadow: 0 0 0 8px rgba(159,240,200,0); } 100% { box-shadow: 0 0 0 0 rgba(159,240,200,0); } }
+  .banner { background: #fff8e1; color: #7a5b00; font-size: 12px; text-align: center; padding: 4px; border-bottom: 1px solid #f0e2b0; }
+  .layout { display: grid; grid-template-columns: 280px 1fr; gap: 16px; padding: 16px; max-width: 1400px; margin: 0 auto; }
+  .panel { background: var(--card); border: 1px solid var(--line); border-radius: 8px; }
+  .panel h3 { margin: 0; padding: 12px 14px; font-size: 13px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
+  .search { padding: 10px; border-bottom: 1px solid var(--line); }
+  .search input { width: 100%; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; font-size: 13px; }
+  .benef { padding: 12px 14px; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .benef:hover { background: #f7faf8; }
+  .benef.active { background: var(--green-soft); border-left: 4px solid var(--green); padding-left: 10px; }
+  .benef b { display: block; }
+  .benef span { color: var(--muted); font-size: 12px; }
+  .benef .badge { float: right; }
+  .feed { margin-top: 16px; }
+  .feed-item { padding: 10px 14px; border-bottom: 1px solid var(--line); font-size: 12px; cursor: pointer; }
+  .feed-item:hover { background: #f7faf8; }
+  .feed-item b { font-size: 13px; }
+  .feed-item.new { animation: flash 3s ease-out; }
+  @keyframes flash { 0% { background: #c9f0dc; } 100% { background: transparent; } }
+  .main { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .profile { padding: 16px 18px; display: grid; grid-template-columns: auto 1fr auto; gap: 16px; align-items: center; }
+  .avatar { width: 56px; height: 56px; border-radius: 50%; background: var(--green); color: #fff; display: grid; place-items: center; font-size: 20px; font-weight: 700; }
+  .profile h2 { margin: 0 0 4px; font-size: 20px; }
+  .profile .sub { color: var(--muted); font-size: 13px; }
+  .facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--line); }
+  .fact { padding: 10px 18px; border-right: 1px solid var(--line); }
+  .fact:last-child { border-right: 0; }
+  .fact label { display: block; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .fact div { font-weight: 600; margin-top: 2px; }
+  .tabs { display: flex; gap: 4px; padding: 0 12px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+  .tab { padding: 12px 14px; cursor: pointer; color: var(--muted); border-bottom: 3px solid transparent; white-space: nowrap; font-weight: 600; }
+  .tab.active { color: var(--green-dark); border-bottom-color: var(--green); }
+  .tab .count { background: var(--line); color: var(--text); border-radius: 10px; padding: 1px 7px; font-size: 11px; margin-left: 6px; }
+  .tab.active .count { background: var(--green); color: #fff; }
+  .content { padding: 4px 0; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); padding: 10px 14px; border-bottom: 1px solid var(--line); background: #fafcfb; }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  tr.new td { animation: flash 4s ease-out; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .ok { background: var(--green-soft); color: var(--green-dark); }
+  .warn { background: var(--amber-soft); color: var(--amber); }
+  .bad { background: var(--red-soft); color: var(--red); }
+  .info { background: var(--blue-soft); color: var(--blue); }
+  .muted { color: var(--muted); font-size: 12px; }
+  .mono { font-family: Consolas, monospace; font-size: 13px; }
+  .atd { padding: 14px 18px; border-bottom: 1px solid var(--line); }
+  .atd.new { animation: flash 4s ease-out; }
+  .atd-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+  .atd-head .left { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .atd p { margin: 8px 0 0; line-height: 1.5; }
+  .atd .meta { margin-top: 8px; display: flex; gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: 12px; }
+  .empty { padding: 28px; text-align: center; color: var(--muted); }
+  a { color: var(--green-dark); font-weight: 600; }
+  .toast { position: fixed; right: 20px; bottom: 20px; background: var(--green-dark); color: #fff; padding: 14px 18px; border-radius: 8px; box-shadow: 0 6px 20px rgba(0,0,0,.2); max-width: 360px; transform: translateY(150%); transition: transform .3s; z-index: 10; }
+  .toast.show { transform: translateY(0); }
+  .toast b { display: block; margin-bottom: 2px; }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .profile { grid-template-columns: auto 1fr; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">SGU Demo <small>CRM de Relacionamento com o Beneficiário · Unimed Demo</small></div>
+  <div class="live"><span class="dot" id="dot"></span><span id="liveText">Conectando...</span></div>
+</header>
+<div class="banner">Ambiente de demonstração com dados fictícios. Os registros são gravados em tempo real pelo assistente virtual (IA) via API.</div>
+
+<div class="layout">
+  <aside>
+    <div class="panel">
+      <h3>Beneficiários <span id="benefCount"></span></h3>
+      <div class="search"><input id="q" placeholder="Buscar por nome, CPF ou carteirinha"></div>
+      <div id="benefList"></div>
+    </div>
+    <div class="panel feed">
+      <h3>Últimos atendimentos da IA</h3>
+      <div id="feed"><div class="empty">Nenhum atendimento ainda.</div></div>
+    </div>
+  </aside>
+
+  <section class="main">
+    <div class="panel" id="profileBox"><div class="empty">Selecione um beneficiário.</div></div>
+    <div class="panel">
+      <div class="tabs" id="tabs"></div>
+      <div class="content" id="content"></div>
+    </div>
+  </section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://app.syngoo.ai/demo-unimed/godb/api';
+const POLL_MS = 3000;
+const state = { benef: [], proc: [], prot: [], bol: [], irpf: [], atd: [], selected: null, tab: 'atendimentos', seenAtd: null, newIds: new Set() };
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const dig = (s) => String(s ?? '').replace(/\D/g, '');
+const fmtCpf = (c) => dig(c).replace(/^(\d{3})(\d{3})(\d{3})(\d{2})$/, '$1.$2.$3-$4');
+const fmtCart = (c) => dig(c).replace(/^(\d)(\d{3})(\d{4})(\d{4})(\d{4})(\d)$/, '$1 $2 $3 $4 $5 $6');
+const fmtDate = (d) => { if (!d) return '-'; const x = new Date(String(d).replace(' ', 'T')); return isNaN(x) ? d : x.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' }); };
+const fmtDateTime = (d) => { if (!d) return '-'; const x = new Date(String(d).replace(' ', 'T')); return isNaN(x) ? d : x.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); };
+const brl = (v) => Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const fileUrl = (it, f) => it && it[f] ? `${API}/files/${it.collectionId}/${it.id}/${it[f]}` : '';
+const initials = (n) => String(n || '?').split(' ').filter(Boolean).map((p) => p[0]).slice(0, 2).join('').toUpperCase();
+const ofBenef = (list) => list.filter((x) => state.selected && dig(x.carteirinha) === dig(state.selected.carteirinha));
+
+function statusBadge(s) {
+  const v = String(s || '').toLowerCase();
+  let cls = 'info';
+  if (/autorizad|conclu|resolvid|pago|positivo|ativo/.test(v)) cls = 'ok';
+  else if (/análise|analise|aberto|pendente|atendimento|neutro/.test(v)) cls = 'warn';
+  else if (/negad|vencid|negativo|cancel/.test(v)) cls = 'bad';
+  return `<span class="badge ${cls}">${esc(s || '-')}</span>`;
+}
+
+async function getAll(col, sort) {
+  const r = await fetch(`${API}/collections/${col}/records?perPage=200${sort ? '&sort=' + sort : ''}`, { cache: 'no-store' });
+  if (!r.ok) throw new Error(col + ' ' + r.status);
+  return (await r.json()).items;
+}
+
+async function load() {
+  try {
+    const [benef, proc, prot, bol, irpf, atd] = await Promise.all([
+      getAll('beneficiarios', 'nome'), getAll('procedimentos', '-data_solicitacao'), getAll('protocolos', '-data_abertura'),
+      getAll('boletos', '-vencimento'), getAll('irpf', '-ano_calendario'), getAll('atendimentos', '-created'),
+    ]);
+    const firstLoad = state.seenAtd === null;
+    const known = state.seenAtd || new Set();
+    const fresh = atd.filter((a) => !known.has(a.id));
+    Object.assign(state, { benef, proc, prot, bol, irpf, atd });
+    state.seenAtd = new Set(atd.map((a) => a.id));
+    if (!firstLoad && fresh.length) {
+      fresh.forEach((a) => state.newIds.add(a.id));
+      const a = fresh[0];
+      const b = benef.find((x) => dig(x.carteirinha) === dig(a.carteirinha));
+      if (b) { state.selected = b; state.tab = 'atendimentos'; }
+      toast(`<b>Novo atendimento registrado pela IA</b>${esc(a.nome)} · protocolo ${esc(a.numero_protocolo)}`);
+      setTimeout(() => { fresh.forEach((x) => state.newIds.delete(x.id)); }, 6000);
+    }
+    if (!state.selected && benef.length) state.selected = benef[0];
+    else if (state.selected) state.selected = benef.find((x) => x.id === state.selected.id) || state.selected;
+    $('dot').className = 'dot';
+    $('liveText').textContent = 'Ao vivo · atualizado ' + new Date().toLocaleTimeString('pt-BR');
+    render();
+  } catch (e) {
+    $('dot').className = 'dot off';
+    $('liveText').textContent = 'Sem conexão com a API';
+  }
+}
+
+function toast(html) {
+  const t = $('toast'); t.innerHTML = html; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 6000);
+}
+
+function render() { renderList(); renderFeed(); renderProfile(); renderTabs(); renderContent(); }
+
+function renderList() {
+  const q = $('q').value.trim().toLowerCase();
+  const qd = dig(q);
+  const list = state.benef.filter((b) => !q || b.nome.toLowerCase().includes(q) || (qd && (dig(b.cpf).includes(qd) || dig(b.carteirinha).includes(qd))));
+  $('benefCount').textContent = state.benef.length;
+  $('benefList').innerHTML = list.map((b) => {
+    const n = state.atd.filter((a) => dig(a.carteirinha) === dig(b.carteirinha)).length;
+    return `<div class="benef ${state.selected && state.selected.id === b.id ? 'active' : ''}" data-id="${b.id}">
+      ${n ? `<span class="badge ok">${n} IA</span>` : ''}<b>${esc(b.nome)}</b><span>${fmtCart(b.carteirinha)}</span></div>`;
+  }).join('') || '<div class="empty">Nenhum resultado.</div>';
+}
+
+function renderFeed() {
+  const items = state.atd.slice(0, 6);
+  $('feed').innerHTML = items.length ? items.map((a) => `<div class="feed-item ${state.newIds.has(a.id) ? 'new' : ''}" data-cart="${esc(a.carteirinha)}">
+      <b>${esc(a.nome)}</b><br>${esc(a.assuntos || a.intencao || '')}<br><span class="muted">${fmtDateTime(a.data_atendimento || a.created)} · ${esc(a.desfecho || '')}</span></div>`).join('')
+    : '<div class="empty">Nenhum atendimento ainda.</div>';
+}
+
+function renderProfile() {
+  const b = state.selected;
+  if (!b) { $('profileBox').innerHTML = '<div class="empty">Selecione um beneficiário.</div>'; return; }
+  $('profileBox').innerHTML = `
+    <div class="profile">
+      <div class="avatar">${initials(b.nome)}</div>
+      <div><h2>${esc(b.nome)}</h2><div class="sub">${esc(b.tipo)} · CPF ${fmtCpf(b.cpf)} · Nasc. ${b.data_nascimento ? b.data_nascimento.split('-').reverse().join('/') : '-'} · ${esc(b.cidade)}</div>
+      <div class="sub">${esc(b.email)} · ${esc(b.telefone)}</div></div>
+      <div>${statusBadge(b.situacao)}</div>
+    </div>
+    <div class="facts">
+      <div class="fact"><label>Carteirinha</label><div class="mono">${fmtCart(b.carteirinha)}</div></div>
+      <div class="fact"><label>Plano</label><div>${esc(b.plano)}</div></div>
+      <div class="fact"><label>Acomodação</label><div>${esc(b.acomodacao)}</div></div>
+      <div class="fact"><label>Abrangência</label><div>${esc(b.abrangencia)}</div></div>
+    </div>`;
+}
+
+const TABS = [
+  ['atendimentos', 'Atendimentos IA', () => ofBenef(state.atd).length],
+  ['protocolos', 'Protocolos ANS', () => ofBenef(state.prot).length],
+  ['guias', 'Guias e autorizações', () => ofBenef(state.proc).length],
+  ['financeiro', 'Financeiro', () => ofBenef(state.bol).length],
+  ['irpf', 'IRPF', () => ofBenef(state.irpf).length],
+];
+
+function renderTabs() {
+  $('tabs').innerHTML = TABS.map(([k, label, count]) => `<div class="tab ${state.tab === k ? 'active' : ''}" data-tab="${k}">${label}<span class="count">${count()}</span></div>`).join('');
+}
+
+function renderContent() {
+  const c = $('content');
+  if (!state.selected) { c.innerHTML = ''; return; }
+  const empty = (t) => `<div class="empty">${t}</div>`;
+  if (state.tab === 'atendimentos') {
+    const l = ofBenef(state.atd);
+    c.innerHTML = l.length ? l.map((a) => `<div class="atd ${state.newIds.has(a.id) ? 'new' : ''}">
+      <div class="atd-head"><div class="left"><b>${fmtDateTime(a.data_atendimento || a.created)}</b><span class="badge info">${esc(a.canal || 'WhatsApp')}</span>${statusBadge(a.desfecho)}${statusBadge('Sentimento: ' + (a.sentimento || '-'))}</div>
+      <span class="mono">Protocolo ${esc(a.numero_protocolo)}</span></div>
+      <div class="meta"><span><b>Assuntos:</b> ${esc(a.assuntos)}</span><span><b>Intenção:</b> ${esc(a.intencao)}</span></div>
+      <p>${esc(a.resumo)}</p>
+      <div class="meta"><span>Registrado por: ${esc(a.agente || 'Assistente virtual')}</span></div></div>`).join('')
+      : empty('Nenhum atendimento registrado pela IA para este beneficiário. Converse com a Lia no WhatsApp e o registro aparece aqui automaticamente.');
+  } else if (state.tab === 'protocolos') {
+    const l = ofBenef(state.prot);
+    c.innerHTML = l.length ? `<table><thead><tr><th>Abertura</th><th>Protocolo</th><th>Canal</th><th>Assunto</th><th>Status</th><th>Descrição</th></tr></thead><tbody>
+      ${l.map((p) => `<tr><td>${fmtDateTime(p.data_abertura)}</td><td class="mono">${esc(p.numero_protocolo)}</td><td>${esc(p.canal)}</td><td>${esc(p.assunto)}</td><td>${statusBadge(p.status)}</td><td>${esc(p.descricao)}</td></tr>`).join('')}</tbody></table>` : empty('Nenhum protocolo.');
+  } else if (state.tab === 'guias') {
+    const l = ofBenef(state.proc);
+    c.innerHTML = l.length ? `<table><thead><tr><th>Guia</th><th>Procedimento</th><th>Prestador</th><th>Solicitação</th><th>Status</th><th>Senha / validade</th><th>Observação</th></tr></thead><tbody>
+      ${l.map((p) => `<tr><td class="mono">${esc(p.numero_guia)}<br><span class="muted">${esc(p.tipo_guia)}</span></td><td><b>${esc(p.descricao)}</b><br><span class="muted">TUSS ${esc(p.codigo_tuss)} · ${esc(p.medico_solicitante)}</span></td><td>${esc(p.prestador)}</td><td>${fmtDate(p.data_solicitacao)}</td><td>${statusBadge(p.status)}</td><td>${p.senha_autorizacao ? `<span class="mono">${esc(p.senha_autorizacao)}</span><br><span class="muted">até ${fmtDate(p.validade_senha)}</span>` : (p.previsao_retorno ? `<span class="muted">Retorno até ${fmtDate(p.previsao_retorno)}</span>` : '-')}</td><td>${esc(p.observacao)}</td></tr>`).join('')}</tbody></table>` : empty('Nenhuma guia.');
+  } else if (state.tab === 'financeiro') {
+    const l = ofBenef(state.bol);
+    c.innerHTML = l.length ? `<table><thead><tr><th>Competência</th><th>Vencimento</th><th>Valor</th><th>Status</th><th>Linha digitável</th><th>Documento</th></tr></thead><tbody>
+      ${l.map((b) => `<tr><td>${esc(b.competencia)}</td><td>${fmtDate(b.vencimento)}</td><td><b>${brl(b.valor)}</b></td><td>${statusBadge(b.status)}</td><td class="mono">${esc(b.linha_digitavel)}</td><td>${fileUrl(b, 'arquivo') ? `<a href="${fileUrl(b, 'arquivo')}" target="_blank" rel="noopener">Boleto PDF</a>` : '-'}</td></tr>`).join('')}</tbody></table>` : empty('Nenhum boleto.');
+  } else if (state.tab === 'irpf') {
+    const l = ofBenef(state.irpf);
+    c.innerHTML = l.length ? `<table><thead><tr><th>Ano-calendário</th><th>Total pago</th><th>Documento</th></tr></thead><tbody>
+      ${l.map((i) => `<tr><td>${esc(i.ano_calendario)}</td><td><b>${brl(i.valor_total)}</b></td><td>${fileUrl(i, 'arquivo') ? `<a href="${fileUrl(i, 'arquivo')}" target="_blank" rel="noopener">Demonstrativo PDF</a>` : '-'}</td></tr>`).join('')}</tbody></table>` : empty('Nenhum informe.');
+  }
+}
+
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('.benef');
+  if (b) { state.selected = state.benef.find((x) => x.id === b.dataset.id); render(); return; }
+  const f = e.target.closest('.feed-item');
+  if (f) { state.selected = state.benef.find((x) => dig(x.carteirinha) === dig(f.dataset.cart)) || state.selected; state.tab = 'atendimentos'; render(); return; }
+  const t = e.target.closest('.tab');
+  if (t) { state.tab = t.dataset.tab; renderTabs(); renderContent(); }
+});
+$('q').addEventListener('input', renderList);
+
+load();
+setInterval(load, POLL_MS);
+</script>
+</body>
+</html>
